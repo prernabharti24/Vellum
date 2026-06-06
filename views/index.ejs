@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vellum</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="topbar">
+
+    <div class="logo-section">
+    <h1 class="brand-name">Vellum</h1>
+    <p class="brand-tagline">
+        Your Personal Knowledge Archive
+    </p>
+</div>
+    
+    <div class="user-section">
+
+        <span class="welcome">
+            Welcome, <%= username %>
+        </span>
+
+        <a href="/logout" class="logout-btn">
+            Logout
+        </a>
+
+    </div>
+
+</div>
+
+    <div class="search-box">
+
+        <form method="GET">
+
+            <input
+            type="text"
+            name="search"
+            placeholder="Search notes...">
+
+        </form>
+
+    </div>
+
+    <div class="form-card">
+
+        <h2>Create Note</h2>
+
+        <form action="/add" method="POST">
+
+            <input
+            type="text"
+            name="title"
+            placeholder="Note Title"
+            required>
+
+            <textarea
+            name="content"
+            rows="6"
+            placeholder="Write your note..."
+            required></textarea>
+
+            <button class="btn" type="submit">
+                Save Note
+            </button>
+
+        </form>
+
+    </div>
+
+    <h2 class="notes-title">
+        Your Notes
+    </h2>
+
+    <% notes.forEach(note => { %>
+
+<div class="card">
+
+    <h3><%= note.title %></h3>
+
+    <div class="card-footer">
+
+        <small>
+            <%= new Date(note.created_at).toLocaleString() %>
+        </small>
+
+        <div class="actions">
+
+            <a href="/note/<%= note.id %>">
+                Open
+            </a>
+
+            <a href="/edit/<%= note.id %>">
+                Edit
+            </a>
+
+            <a href="/delete/<%= note.id %>">
+                Delete
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<% }) %>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= note.title %> | Vellum</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="note-page">
+
+        <div class="note-header">
+
+            <h1><%= note.title %></h1>
+
+            <p class="created-date">
+                Created:
+                <%= new Date(note.created_at).toLocaleString() %>
+            </p>
+
+        </div>
+
+        <div class="code-box">
+
+<pre class="note-content"><%= note.content %></pre>
+
+        </div>
+
+        <div class="note-buttons">
+
+            <a href="/edit/<%= note.id %>" class="btn">
+                Edit Note
+            </a>
+
+            <a href="/" class="btn secondary-btn">
+                Back
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
