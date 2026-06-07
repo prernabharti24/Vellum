@@ -158,7 +158,7 @@ app.get("/", isAuthenticated, (req, res) => {
             `SELECT * FROM notes
              WHERE user_id = ?
              AND title LIKE ?
-             ORDER BY created_at DESC`,
+             ORDER BY pinned DESC, created_at DESC`,
             [
                 req.session.userId,
                 `%${search}%`
@@ -180,7 +180,7 @@ app.get("/", isAuthenticated, (req, res) => {
         db.query(
             `SELECT * FROM notes
              WHERE user_id = ?
-             ORDER BY created_at DESC`,
+             ORDER BY pinned DESC, created_at DESC`
             [req.session.userId],
             (err, result) => {
 
@@ -329,7 +329,25 @@ app.get("/delete/:id", isAuthenticated, (req, res) => {
     );
 
 });
+app.get("/pin/:id", isAuthenticated, (req, res) => {
+
+    db.query(
+        `UPDATE notes
+         SET pinned = NOT pinned
+         WHERE id = ?
+         AND user_id = ?`,
+        [req.params.id, req.session.userId],
+        (err) => {
+
+            if (err) throw err;
+
+            res.redirect("/");
+        }
+    );
+
+});
 
 app.listen(3000, () => {
     console.log("Server running on port 3000");
 });
+ 

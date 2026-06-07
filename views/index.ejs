@@ -81,7 +81,12 @@
 
 <div class="card">
 
-    <h3><%= note.title %></h3>
+    <h3>
+    <% if(note.pinned) { %>
+        📌
+    <% } %>
+    <%= note.title %>
+</h3>
 
     <div class="card-footer">
 
@@ -91,19 +96,27 @@
 
         <div class="actions">
 
-            <a href="/note/<%= note.id %>">
-                Open
-            </a>
+    <a href="/note/<%= note.id %>">
+        Open
+    </a>
 
-            <a href="/edit/<%= note.id %>">
-                Edit
-            </a>
+    <a href="/edit/<%= note.id %>">
+        Edit
+    </a>
 
-            <a href="/delete/<%= note.id %>">
-                Delete
-            </a>
+    <a href="/pin/<%= note.id %>">
+        <% if(note.pinned) { %>
+            Unpin
+        <% } else { %>
+            📌 Pin
+        <% } %>
+    </a>
 
-        </div>
+    <a href="/delete/<%= note.id %>">
+        Delete
+    </a>
+
+</div>
 
     </div>
 
