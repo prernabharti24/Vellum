@@ -101,6 +101,40 @@ app.post("/login", (req, res) => {
         }
     );
 });
+// =========Forgot Password===============
+app.get("/forgot-password", (req, res) => {
+    res.render("forgot-password");
+});
+
+app.post("/forgot-password", async (req, res) => {
+
+    const { username, newPassword } = req.body;
+
+    try {
+
+        const hashedPassword =
+            await bcrypt.hash(newPassword, 10);
+
+        db.query(
+            "UPDATE users SET password=? WHERE username=?",
+            [hashedPassword, username],
+            (err, result) => {
+
+                if (err) throw err;
+
+                if (result.affectedRows === 0) {
+                    return res.send("User not found");
+                }
+
+                res.redirect("/login");
+            }
+        );
+
+    } catch (error) {
+        res.send("Password Reset Error");
+    }
+
+});
 
 // ================= LOGOUT =================
 
