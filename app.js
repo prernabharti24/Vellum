@@ -108,7 +108,15 @@ app.get("/forgot-password", (req, res) => {
 
 app.post("/forgot-password", async (req, res) => {
 
-    const { username, newPassword } = req.body;
+    const {
+        username,
+        newPassword,
+        confirmPassword
+    } = req.body;
+
+    if (newPassword !== confirmPassword) {
+        return res.send("Passwords do not match");
+    }
 
     try {
 
@@ -131,11 +139,12 @@ app.post("/forgot-password", async (req, res) => {
         );
 
     } catch (error) {
-        res.send("Password Reset Error");
+
+        res.send("Error Updating Password");
+
     }
 
 });
-
 // ================= LOGOUT =================
 
 app.get("/logout", (req, res) => {
@@ -155,10 +164,11 @@ app.get("/", isAuthenticated, (req, res) => {
     if (search) {
 
         db.query(
-            `SELECT * FROM notes
-             WHERE user_id = ?
-             AND title LIKE ?
-             ORDER BY pinned DESC, created_at DESC`,
+         `SELECT * FROM notes
+         WHERE user_id = ?
+         AND is_deleted = FALSE
+         AND title LIKE ?
+         ORDER BY pinned DESC, created_at DESC`
             [
                 req.session.userId,
                 `%${search}%`
@@ -176,11 +186,11 @@ app.get("/", isAuthenticated, (req, res) => {
         );
 
     } else {
-
-        db.query(
-            `SELECT * FROM notes
-             WHERE user_id = ?
-             ORDER BY pinned DESC, created_at DESC`
+            db.query(
+           `SELECT * FROM notes
+            WHERE user_id = ?
+            AND is_deleted = FALSE
+            ORDER BY pinned DESC, created_at DESC`,
             [req.session.userId],
             (err, result) => {
 
@@ -313,7 +323,9 @@ app.post("/update/:id", isAuthenticated, (req, res) => {
 app.get("/delete/:id", isAuthenticated, (req, res) => {
 
     db.query(
-        `DELETE FROM notes
+        `UPDATE notes
+         SET is_deleted = TRUE,
+             deleted_at = NOW()
          WHERE id = ?
          AND user_id = ?`,
         [
@@ -346,7 +358,46 @@ app.get("/pin/:id", isAuthenticated, (req, res) => {
     );
 
 });
+app.get("/bin", isAuthenticated, (req, res) => {
 
+    db.query(
+        `SELECT * FROM notes
+         WHERE user_id = ?
+         AND is_deleted = TRUE
+         ORDER BY deleted_at DESC`,
+        [req.session.userId],
+        (err, result) => {
+
+            if (err) throw err;
+
+            res.render("bin", {
+                notes: result,
+                username: req.session.username
+            });
+
+        }
+    );
+
+});
+
+app.get("/restore/:id", isAuthenticated, (req, res) => {
+
+    db.query(
+        `UPDATE notes
+         SET is_deleted = FALSE,
+             deleted_at = NULL
+         WHERE id = ?
+         AND user_id = ?`,
+        [req.params.id, req.session.userId],
+        (err) => {
+
+            if (err) throw err;
+
+            res.redirect("/bin");
+        }
+    );
+
+});
 app.listen(3000, () => {
     console.log("Server running on port 3000");
 });
