@@ -164,26 +164,27 @@ app.get("/", isAuthenticated, (req, res) => {
     if (search) {
 
         db.query(
-         `SELECT * FROM notes
-         WHERE user_id = ?
-         AND is_deleted = FALSE
-         AND title LIKE ?
-         ORDER BY pinned DESC, created_at DESC`
-            [
-                req.session.userId,
-                `%${search}%`
-            ],
-            (err, result) => {
+    `SELECT * FROM notes
+     WHERE user_id = ?
+     AND is_deleted = FALSE
+     AND title LIKE ?
+     ORDER BY pinned DESC, created_at DESC`,
+    [
+        req.session.userId,
+        `%${search}%`
+    ],
+    (err, result) => {
 
-                if (err) throw err;
+        if (err) throw err;
 
-                res.render("index", {
-                    notes: result,
-                    username: req.session.username
-                });
+       res.render("index", {
+       notes: result,
+       username: req.session.username,
+       duplicate: req.query.duplicate
+});
 
-            }
-        );
+    }
+);
 
     } else {
             db.query(
@@ -196,11 +197,11 @@ app.get("/", isAuthenticated, (req, res) => {
 
                 if (err) throw err;
 
-                res.render("index", {
-                    notes: result,
-                    username: req.session.username
-                });
-
+               res.render("index", {
+               notes: result,
+               username: req.session.username,
+               duplicate: req.query.duplicate
+});
             }
         );
 
@@ -209,31 +210,39 @@ app.get("/", isAuthenticated, (req, res) => {
 });
 
 // ================= ADD NOTE =================
+// ================= ADD NOTE =================
 
 app.post("/add", isAuthenticated, (req, res) => {
 
     const { title, content } = req.body;
 
     db.query(
-        `INSERT INTO notes
-        (title, content, user_id)
-        VALUES (?, ?, ?)`,
-        [
-            title,
-            content,
-            req.session.userId
-        ],
-        (err) => {
+        "SELECT * FROM notes WHERE user_id = ? AND title = ?",
+        [req.session.userId, title],
+        (err, results) => {
 
             if (err) throw err;
 
-            res.redirect("/");
+            if (results.length > 0) {
+                return res.redirect("/?duplicate=true");
+            }
+
+            db.query(
+                "INSERT INTO notes (user_id, title, content) VALUES (?, ?, ?)",
+                [req.session.userId, title, content],
+                (err) => {
+
+                    if (err) throw err;
+
+                    res.redirect("/");
+                }
+            );
+
         }
     );
 
 });
-
-// ================= OPEN NOTE =================
+// ================ OPEN NOTE =================
 
 app.get("/note/:id", isAuthenticated, (req, res) => {
 
